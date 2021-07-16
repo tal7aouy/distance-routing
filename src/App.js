@@ -29,8 +29,14 @@ function App() {
       })
         .setLngLat([longitude, latitude])
         .addTo(myMap)
+      marker.on('dragend', () => {
+        const latLng = marker.getLngLat()
+        setLatitude(latLng.lat)
+        setLongitude(latLng.lng)
+      })
     }
     addMarker()
+
     // cleanup function
     return () => myMap.remove()
   }, [longitude, latitude])
