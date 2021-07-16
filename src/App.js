@@ -5,6 +5,7 @@ function App() {
   const [longitude, setLongitude] = useState(-3.7045)
   const [latitude, setLatitude] = useState(33.339531)
   const mapElem = useRef()
+
   const API_KEY = 'V5DFo4X3uONIJmSWCvD24GobF5CCgGJ7'
 
   useEffect(() => {
@@ -21,6 +22,14 @@ function App() {
     setMap(myMap)
     // addMarker
     const addMarker = () => {
+      // popupOffest
+      const popupOfsset = {
+        bottom: [0, -25],
+      }
+      // define popup
+      const popup = new tt.Popup({ offset: popupOfsset }).setHTML(
+        'This is me ?'
+      )
       const elem = document.createElement('div')
       elem.className = 'marker'
       const marker = new tt.Marker({
@@ -34,6 +43,7 @@ function App() {
         setLatitude(latLng.lat)
         setLongitude(latLng.lng)
       })
+      marker.setPopup(popup).togglePopup()
     }
     addMarker()
 
