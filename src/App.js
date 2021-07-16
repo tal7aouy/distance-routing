@@ -24,7 +24,7 @@ function App() {
     const addMarker = () => {
       // popupOffest
       const popupOfsset = {
-        bottom: [0, -25],
+        bottom: [0, -40],
       }
       // define popup
       const popup = new tt.Popup({ offset: popupOfsset }).setHTML(
