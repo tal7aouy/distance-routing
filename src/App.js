@@ -1,25 +1,22 @@
-import logo from './logo.svg';
-import './App.css';
-
+import { useEffect, useRef, useState } from 'react'
+import * as tt from '@tomtom-international/web-sdk-maps'
 function App() {
+  const [map, setMap] = useState({})
+  const mapElem = useRef()
+  const API_KEY = 'V5DFo4X3uONIJmSWCvD24GobF5CCgGJ7'
+  useEffect(() => {
+    let myMap = tt.map({
+      key: API_KEY,
+      container: mapElem.current,
+    })
+    console.log(myMap)
+    setMap(myMap)
+  }, [])
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className='container'>
+      <div ref={mapElem} className='map'></div>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
