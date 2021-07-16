@@ -11,10 +11,33 @@ body {
   height: 100vh;
   display: flex;
   justify-content: center;
+  flex-direction: column;
   align-items: center;
 }
 .map {
-  width: 70%;
-  height: 70vh;
+  height: 800px;
   margin: 0 auto;
+}
+.search-bar {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+h4 {
+  text-transform: uppercase;
+  color: black;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+input[type='text'] {
+  outline: none;
+  border-radius: 10px;
+  padding: 6px 10px;
+  border: 1px solid gray;
+  margin-bottom: 1rem;
+}
+input[type='text'] :focus {
+  border: 2px solid skyblue;
 }
