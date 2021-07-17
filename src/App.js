@@ -3,19 +3,37 @@ import * as tt from '@tomtom-international/web-sdk-maps'
 import * as tts from '@tomtom-international/web-sdk-services'
 function App() {
   const [map, setMap] = useState({})
-  const [longitude, setLongitude] = useState(-3.7045)
-  const [latitude, setLatitude] = useState(33.339531)
+  const [longitude, setLongitude] = useState(-0.127758)
+  const [latitude, setLatitude] = useState(51.507351)
   const mapElem = useRef()
 
   const API_KEY = 'V5DFo4X3uONIJmSWCvD24GobF5CCgGJ7'
   // convert latitude & longtitude to point
-  const toPoint = (latLng) => {
+  const toPoint = (lngLat) => {
     return {
       point: {
-        latitude: latLng.lat,
-        longitude: latLng.lng,
+        latitude: lngLat.lat,
+        longitude: lngLat.lng,
       },
     }
+  }
+  const drawRoute = (geoJson, map) => {
+    if (map.getLayer('route')) {
+      map.removeLayer('route')
+      map.removeSource('route')
+    }
+    map.addLayer({
+      id: 'route',
+      type: 'line',
+      source: {
+        type: 'geojson',
+        data: geoJson,
+      },
+      paint: {
+        'line-color': 'brown',
+        'line-width': 6,
+      },
+    })
   }
   const addDeliveryMarker = (lngLat, map) => {
     const element = document.createElement('div')
@@ -26,13 +44,14 @@ function App() {
       .setLngLat(lngLat)
       .addTo(map)
   }
+
   useEffect(() => {
     const origin = {
       lat: latitude,
-      long: longitude,
+      lng: longitude,
     }
     const destinations = []
-    let myMap = tt.map({
+    let map = tt.map({
       key: API_KEY,
       container: mapElem.current,
       center: [longitude, latitude],
@@ -42,7 +61,7 @@ function App() {
         trafficIncidents: true,
       },
     })
-    setMap(myMap)
+    setMap(map)
     // addMarker
     const addMarker = () => {
       // popupOffest
@@ -60,7 +79,7 @@ function App() {
         element: elem,
       })
         .setLngLat([longitude, latitude])
-        .addTo(myMap)
+        .addTo(map)
       marker.on('dragend', () => {
         const latLng = marker.getLngLat()
         setLatitude(latLng.lat)
@@ -69,21 +88,59 @@ function App() {
       marker.setPopup(popup).togglePopup()
     }
     addMarker()
-    // const callParams = {
-    //   key: API_KEY,
-    //   destinations: ,
-    //   origins: [toPoint(origin)]
-    // }
-    // return new Promise((relove,reject)=>{
-    //   tts.services.matrixRouting(callParams)
-    // })
 
-    myMap.on('click', (e) => {
+    const sortDests = (locations) => {
+      const pointsForDes = locations.map((destination) => {
+        return toPoint(destination)
+      })
+      const callParams = {
+        key: API_KEY,
+        destinations: pointsForDes,
+        origins: [toPoint(origin)],
+      }
+      return new Promise((resolve, reject) => {
+        tts.services.matrixRouting(callParams).then((response) => {
+          const results = response.matrix[0]
+          console.log(results)
+
+          const arrayResults = results.map((result, index) => {
+            return {
+              location: locations[index],
+              drivingtime: result.response.routeSummary.travelTimeInSeconds,
+            }
+          })
+          arrayResults.sort((x, y) => {
+            return x.drivingtime - y.drivingtime
+          })
+          const sortedLocations = arrayResults.map((result) => {
+            return result.location
+          })
+          resolve(sortedLocations)
+        })
+      })
+    }
+    const recalculateRoutes = () => {
+      sortDests(destinations).then((sorted) => {
+        sorted.unshift(origin)
+        tts.services
+          .calculateRoute({
+            key: API_KEY,
+            locations: sorted,
+          })
+          .then((routeData) => {
+            const geoJson = routeData.toGeoJson()
+
+            drawRoute(geoJson, map)
+          })
+      })
+    }
+    map.on('click', (e) => {
       destinations.push(e.lngLat)
-      addDeliveryMarker(e.lngLat, myMap)
+      addDeliveryMarker(e.lngLat, map)
+      recalculateRoutes()
     })
     // cleanup function
-    return () => myMap.remove()
+    return () => map.remove()
   }, [longitude, latitude])
   return (
     <>
