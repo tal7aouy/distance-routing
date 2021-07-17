@@ -7,7 +7,7 @@ function App() {
   const [latitude, setLatitude] = useState(51.507351)
   const mapElem = useRef()
 
-  const API_KEY = 'V5DFo4X3uONIJmSWCvD24GobF5CCgGJ7'
+  const API_KEY = 'API_KEY'
   // convert latitude & longtitude to point
   const toPoint = (lngLat) => {
     return {
