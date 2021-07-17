@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import * as tt from '@tomtom-international/web-sdk-maps'
+import * as tts from '@tomtom-international/web-sdk-services'
 function App() {
   const [map, setMap] = useState({})
   const [longitude, setLongitude] = useState(-3.7045)
@@ -7,8 +8,30 @@ function App() {
   const mapElem = useRef()
 
   const API_KEY = 'V5DFo4X3uONIJmSWCvD24GobF5CCgGJ7'
-
+  // convert latitude & longtitude to point
+  const toPoint = (latLng) => {
+    return {
+      point: {
+        latitude: latLng.lat,
+        longitude: latLng.lng,
+      },
+    }
+  }
+  const addDeliveryMarker = (lngLat, map) => {
+    const element = document.createElement('div')
+    element.className = 'delivery-marker'
+    new tt.Marker({
+      element: element,
+    })
+      .setLngLat(lngLat)
+      .addTo(map)
+  }
   useEffect(() => {
+    const origin = {
+      lat: latitude,
+      long: longitude,
+    }
+    const destinations = []
     let myMap = tt.map({
       key: API_KEY,
       container: mapElem.current,
@@ -46,7 +69,19 @@ function App() {
       marker.setPopup(popup).togglePopup()
     }
     addMarker()
+    // const callParams = {
+    //   key: API_KEY,
+    //   destinations: ,
+    //   origins: [toPoint(origin)]
+    // }
+    // return new Promise((relove,reject)=>{
+    //   tts.services.matrixRouting(callParams)
+    // })
 
+    myMap.on('click', (e) => {
+      destinations.push(e.lngLat)
+      addDeliveryMarker(e.lngLat, myMap)
+    })
     // cleanup function
     return () => myMap.remove()
   }, [longitude, latitude])

@@ -52,3 +52,8 @@ input[type='text'] :focus {
   border-radius: 11px;
   border: 2px solid darkorchid;
 }
+.delivery-marker {
+  background-color: yellow;
+  width: 22px;
+  height: 22px;
+}
